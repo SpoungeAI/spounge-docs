@@ -3,7 +3,8 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { SearchDropdown } from "@/components/search-dropdown"
-import { Layers, ExternalLink } from "lucide-react"
+import {ExternalLink } from "lucide-react"
+import Image from 'next/image';
 
 interface TopNavbarProps {
   searchQuery: string
@@ -20,9 +21,16 @@ export function TopNavbar({ searchQuery, onSearchChange, onSectionChange }: TopN
           <div className="flex items-center gap-3 md:gap-4">
             <SidebarTrigger className="md:hidden" />
             <div className="flex items-center gap-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-blue-500 to-purple-600">
-                <Layers className="h-4 w-4 text-white" />
+              <div className="h-9 w-9 rounded-md overflow-hidden">
+                <Image
+                  src="/Spounge.webp"
+                  alt="Spounge Logo"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                />
               </div>
+
               <div className="flex flex-col">
                 <span className="font-semibold text-lg leading-tight">Spounge</span>
                 <span className="text-xs text-muted-foreground leading-tight">Architecture</span>

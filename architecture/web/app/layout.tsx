@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "SpoungeAI System Design",
   description: "Interactive system design documentation for SpoungeAI platform",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
