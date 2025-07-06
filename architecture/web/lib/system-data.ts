@@ -74,7 +74,7 @@ export const systemData: SystemData = {
       },
       {
         id: 2,
-        name: "Production Readiness & Advanced Features",
+        name: "Production",
         description:
           "Components that add critical observability, security hardening, and advanced AI capabilities like long-term memory (RAG).",
       },

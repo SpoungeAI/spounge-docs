@@ -133,7 +133,7 @@ export function RoadmapSection() {
                 <Badge variant="outline" className="text-xs font-medium">
                   Phase 1
                 </Badge>
-                <h3 className="font-semibold">MVP Core</h3>
+                <h3 className="font-semibold">MVP</h3>
                 <div className="flex items-center gap-1 ml-auto">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <span className="text-sm text-green-600 font-medium">In Progress</span>
@@ -164,7 +164,7 @@ export function RoadmapSection() {
                 <Badge variant="outline" className="text-xs font-medium">
                   Phase 2
                 </Badge>
-                <h3 className="font-semibold">Production Readiness & Advanced Features</h3>
+                <h3 className="font-semibold">Production</h3>
                 <div className="flex items-center gap-1 ml-auto">
                   <Clock className="h-4 w-4 text-orange-600" />
                   <span className="text-sm text-orange-600 font-medium">Planned</span>
