@@ -1,0 +1,10 @@
+{
+  "buildConfig": {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "rootDirectory": "architecture/web"
+  },
+  "environmentVariables": {
+    "NODE_VERSION": "20"
+  }
+} 

@@ -1,5 +1,3 @@
-"use client"
-
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Book, FileText, Code, Database, Shield, Cloud } from "lucide-react"
 import type { Component } from "@/lib/system-data"

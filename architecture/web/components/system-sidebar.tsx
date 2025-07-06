@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   Sidebar,
@@ -33,11 +31,6 @@ export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarP
 
   const handleSectionClick = (sectionId: string) => {
     onSectionChange(sectionId)
-    window.location.hash = sectionId
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
   }
 
   const toggleGroup = (groupId: string) => {
@@ -86,7 +79,7 @@ export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarP
       variant="sidebar"
       collapsible="offcanvas"
       className="w-64 flex-shrink-0 border-r bg-sidebar lg:flex"
-      style={{ top: "3.5rem" }} // Add this line if the container pt-14 doesn't work
+      style={{ top: "3.5rem" }}
     >
       <SidebarContent className="overflow-y-auto py-6">
         {/* Implementation Roadmap */}

@@ -1,5 +1,3 @@
-"use client"
-
 import { Badge } from "@/components/ui/badge"
 import { GitBranch, Users, Package, Workflow, CheckCircle, Clock, ExternalLink, ArrowRight } from "lucide-react"
 

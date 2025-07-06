@@ -1,4 +1,3 @@
-"use client"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ExternalLink, GitBranch, Users, AlertTriangle, Rocket } from "lucide-react"

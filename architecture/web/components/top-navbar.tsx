@@ -1,10 +1,7 @@
-"use client"
-
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { SearchDropdown } from "@/components/search-dropdown"
-import {ExternalLink } from "lucide-react"
-import Image from 'next/image';
+import { ExternalLink } from "lucide-react"
 
 interface TopNavbarProps {
   searchQuery: string
@@ -22,11 +19,9 @@ export function TopNavbar({ searchQuery, onSearchChange, onSectionChange }: TopN
             <SidebarTrigger className="md:hidden" />
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-md overflow-hidden">
-                <Image
+                <img
                   src="/Spounge.webp"
                   alt="Spounge Logo"
-                  width={36}
-                  height={36}
                   className="h-full w-full object-cover"
                 />
               </div>

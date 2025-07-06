@@ -1,5 +1,3 @@
-"use client"
-
 import { SidebarInset } from "@/components/ui/sidebar"
 import { RoadmapSection } from "@/components/roadmap-section"
 import { ComponentDetail } from "@/components/component-detail"
@@ -16,13 +14,6 @@ export function MainContent({ activeSection, onSectionChange }: MainContentProps
 
   const handleNavigateFromDiagram = (componentId: string) => {
     onSectionChange(componentId)
-    window.location.hash = componentId
-    const element = document.getElementById(componentId)
-    if (element) {
-      setTimeout(() => {
-        element.scrollIntoView({ behavior: "smooth" })
-      }, 100)
-    }
   }
 
   return (
