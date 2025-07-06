@@ -47,7 +47,7 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <div className="w-full min-h-screen bg-background text-foreground">
+      <div className="flex flex-col h-screen w-full bg-background text-foreground">
         <SidebarProvider defaultOpen={false}>
           {/* Fixed top navbar */}
           <TopNavbar 
@@ -67,63 +67,58 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
           </TopNavbar>
 
           {/* Page content below navbar */}
-          <div className="pt-14 w-full h-[calc(100vh-3.5rem)]">
-            <div className="flex h-full w-full relative">
-              {/* Mobile sidebar overlay */}
-              {isMobile && sidebarOpen && (
-                <div 
-                  className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30"
-                  onClick={() => setSidebarOpen(false)}
-                />
-              )}
-
-              {/* Mobile sidebar close button */}
-              {isMobile && sidebarOpen && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="fixed top-4 right-4 z-50 md:hidden"
-                  onClick={() => setSidebarOpen(false)}
-                  aria-label="Close Menu"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              )}
-
-              {/* Sidebar */}
+          <div className="flex flex-1 pt-14 w-full overflow-hidden">
+            {/* Mobile sidebar overlay */}
+            {isMobile && sidebarOpen && (
               <div 
-                className={`
-                  ${isMobile ? 'fixed' : 'relative'} 
-                  z-40 transition-transform duration-300 ease-in-out
-                  ${isMobile ? (sidebarOpen ? 'translate-x-0' : '-translate-x-full') : ''}
-                `}
-              >
-                <aside className={`
-                  ${isMobile ? 'w-[280px]' : 'w-64'} 
-                  h-full overflow-y-auto bg-sidebar border-r
-                `}
-                style={{ 
-                  height: 'calc(100vh - 3.5rem)',
-                  top: isMobile ? '3.5rem' : '0'
-                }}
-                >
-                  <SystemSidebar 
-                    activeSection={activeSection} 
-                    onSectionChange={handleSectionChange}
-                  />
-                </aside>
-              </div>
+                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
 
-              {/* Main content */}
-              <main className={`
-                flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-4 bg-background w-full
-              `}>
-                <MainContent 
+            {/* Mobile sidebar close button */}
+            {isMobile && sidebarOpen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="fixed top-4 right-4 z-50 md:hidden"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close Menu"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            )}
+
+            {/* Sidebar */}
+            <div 
+              className={`
+                ${isMobile ? 'fixed' : 'flex-none'} 
+                z-40 transition-transform duration-300 ease-in-out
+                ${isMobile ? (sidebarOpen ? 'translate-x-0' : '-translate-x-full') : ''}
+              `}
+            >
+              <aside className={`
+                ${isMobile ? 'w-[280px]' : 'w-64'} 
+                h-[calc(100vh-3.5rem)] bg-sidebar border-r
+              `}
+              style={{ 
+                top: isMobile ? '3.5rem' : '0'
+              }}
+              >
+                <SystemSidebar 
                   activeSection={activeSection} 
                   onSectionChange={handleSectionChange}
                 />
-              </main>
+              </aside>
             </div>
+
+            {/* Main content */}
+            <main className="flex-1 overflow-auto">
+              <MainContent 
+                activeSection={activeSection} 
+                onSectionChange={handleSectionChange}
+              />
+            </main>
           </div>
         </SidebarProvider>
       </div>

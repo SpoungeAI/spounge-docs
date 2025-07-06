@@ -19,9 +19,9 @@ export function MainContent({ activeSection, onSectionChange }: MainContentProps
   }
 
   return (
-    <SidebarInset className="flex-1 min-w-0 w-full">
-      <main className="h-full w-full overflow-y-auto">
-        <div className="mx-auto px-3 py-4 md:px-6 md:py-8 lg:px-8 xl:px-12 2xl:px-16">
+    <SidebarInset className="flex-1 min-w-0 w-full h-full">
+      <main className="h-full w-full">
+        <div className="mx-auto h-full px-3 py-4 md:px-6 md:py-8 lg:px-8 xl:px-12 2xl:px-16">
           <div className="mx-auto w-full max-w-screen-xl space-y-6 md:space-y-8">
             {activeSection === "roadmap" && <RoadmapSection />}
             {activeSection === "architecture-diagrams" && (
