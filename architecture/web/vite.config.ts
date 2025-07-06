@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import reactSWC from '@vitejs/plugin-react-swc'
 import path from 'node:path'
+import fs from 'node:fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,16 +10,19 @@ export default defineConfig({
     {
       name: 'spa-fallback',
       configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url?.includes('.')) {
-            // Skip for files with extensions (assets)
-            next()
-          } else {
-            // For all other requests, serve index.html
-            req.url = '/'
-            next()
-          }
-        })
+        return () => {
+          server.middlewares.use((req, res, next) => {
+            // Skip for static assets requests
+            if (req.url?.match(/\.(js|css|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/)) {
+              return next();
+            }
+            
+            const indexHtml = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/html');
+            res.end(indexHtml);
+          });
+        };
       }
     }
   ],
@@ -33,7 +37,8 @@ export default defineConfig({
   },
   base: '/',
   server: {
-    port: 5173
+    port: 5173,
+    host: true,
   },
   build: {
     outDir: 'dist',

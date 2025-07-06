@@ -15,6 +15,7 @@ import {
 import { Workflow, Shield, Database, Cpu, Globe, FileText, Cloud, ChevronRight, ChevronDown } from "lucide-react"
 import { systemData } from "@/lib/system-data"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface SystemSidebarProps {
   activeSection: string
@@ -22,6 +23,7 @@ interface SystemSidebarProps {
 }
 
 export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarProps) {
+  const isMobile = useIsMobile()
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     "core-services": true,
     "polykey-tools": true,
@@ -74,136 +76,138 @@ export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarP
     return iconMap[componentId] || FileText
   }
 
+  const sidebarWidth = isMobile ? 'w-full' : 'w-64'
+
   return (
-    <Sidebar
-      variant="sidebar"
-      collapsible="offcanvas"
-      className="w-64 flex-shrink-0 border-r bg-sidebar lg:flex"
-      style={{ top: "3.5rem" }}
-    >
-      <SidebarContent className="overflow-y-auto py-6">
+    <div className={`${sidebarWidth} h-full bg-sidebar`}>
+      <div className="overflow-y-auto py-4 h-full">
         {/* Implementation Roadmap */}
-        <SidebarGroup className="px-3">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => handleSectionClick("roadmap")}
-                  isActive={activeSection === "roadmap"}
-                  className="w-full justify-start px-3 py-2"
-                >
-                  <FileText className="h-4 w-4" />
-                  <span>Implementation Roadmap</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <div className="px-3 mb-3">
+          <div>
+            <div className="space-y-1">
+              <button
+                onClick={() => handleSectionClick("roadmap")}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                  activeSection === "roadmap"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                }`}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Implementation Roadmap</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Architecture Diagrams */}
-        <SidebarGroup className="px-3">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => handleSectionClick("architecture-diagrams")}
-                  isActive={activeSection === "architecture-diagrams"}
-                  className="w-full justify-start px-3 py-2"
-                >
-                  <Workflow className="h-4 w-4" />
-                  <span>Architecture Diagrams</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <div className="px-3 mb-3">
+          <div>
+            <div className="space-y-1">
+              <button
+                onClick={() => handleSectionClick("architecture-diagrams")}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                  activeSection === "architecture-diagrams"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                }`}
+              >
+                <Workflow className="h-4 w-4" />
+                <span>Architecture Diagrams</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Core Services */}
         <Collapsible open={expandedGroups["core-services"]} onOpenChange={() => toggleGroup("core-services")}>
-          <SidebarGroup className="px-3">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                {expandedGroups["core-services"] ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-                <Workflow className="h-4 w-4" />
-                Core Services
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent className="mt-2">
-                <SidebarMenu>
-                  {coreServices.map((component) => {
-                    const IconComponent = getComponentIcon(component.id)
+          <div className="px-3 mb-1">
+            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+              {expandedGroups["core-services"] ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+              <Workflow className="h-4 w-4" />
+              Core Services
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent>
+            <div className="ml-4 mt-1 space-y-1">
+              {coreServices.map((component) => {
+                const IconComponent = getComponentIcon(component.id)
 
-                    if (component.id === "polykey-service") {
-                      return (
-                        <Collapsible
-                          key={component.id}
-                          open={expandedGroups["polykey-tools"]}
-                          onOpenChange={() => toggleGroup("polykey-tools")}
-                        >
-                          <SidebarMenuItem>
-                            <CollapsibleTrigger asChild>
-                              <SidebarMenuButton
-                                onClick={() => handleSectionClick(component.id)}
-                                isActive={activeSection === component.id}
-                                className="w-full justify-between px-3 py-2"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <IconComponent className="h-4 w-4" />
-                                  <span className="capitalize">{component.id.replace("-", " ")}</span>
-                                </div>
-                                {expandedGroups["polykey-tools"] ? (
-                                  <ChevronDown className="h-3 w-3" />
-                                ) : (
-                                  <ChevronRight className="h-3 w-3" />
-                                )}
-                              </SidebarMenuButton>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <SidebarMenuSub className="ml-4 mt-1">
-                                {polykeyTools.map((tool) => {
-                                  const ToolIcon = getComponentIcon(tool.id)
-                                  return (
-                                    <SidebarMenuSubItem key={tool.id}>
-                                      <SidebarMenuSubButton
-                                        onClick={() => handleSectionClick(tool.id)}
-                                        isActive={activeSection === tool.id}
-                                        className="px-3 py-1.5"
-                                      >
-                                        <ToolIcon className="h-4 w-4" />
-                                        <span className="capitalize">{tool.id.replace("-", " ")}</span>
-                                      </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
-                                  )
-                                })}
-                              </SidebarMenuSub>
-                            </CollapsibleContent>
-                          </SidebarMenuItem>
-                        </Collapsible>
-                      )
-                    }
+                if (component.id === "polykey-service") {
+                  return (
+                    <Collapsible
+                      key={component.id}
+                      open={expandedGroups["polykey-tools"]}
+                      onOpenChange={() => toggleGroup("polykey-tools")}
+                    >
+                      <div>
+                        <CollapsibleTrigger asChild>
+                          <button
+                            onClick={() => handleSectionClick(component.id)}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md ${
+                              activeSection === component.id
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <IconComponent className="h-4 w-4" />
+                              <span className="capitalize">{component.id.replace("-", " ")}</span>
+                            </div>
+                            {expandedGroups["polykey-tools"] ? (
+                              <ChevronDown className="h-3 w-3" />
+                            ) : (
+                              <ChevronRight className="h-3 w-3" />
+                            )}
+                          </button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="ml-4 mt-1 space-y-1">
+                            {polykeyTools.map((tool) => {
+                              const ToolIcon = getComponentIcon(tool.id)
+                              return (
+                                <button
+                                  key={tool.id}
+                                  onClick={() => handleSectionClick(tool.id)}
+                                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-md ${
+                                    activeSection === tool.id
+                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                      : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                                  }`}
+                                >
+                                  <ToolIcon className="h-4 w-4" />
+                                  <span className="capitalize">{tool.id.replace("-", " ")}</span>
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  )
+                }
 
-                    return (
-                      <SidebarMenuItem key={component.id}>
-                        <SidebarMenuButton
-                          onClick={() => handleSectionClick(component.id)}
-                          isActive={activeSection === component.id}
-                          className="px-3 py-2"
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          <span className="capitalize">{component.id.replace("-", " ")}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
+                return (
+                  <button
+                    key={component.id}
+                    onClick={() => handleSectionClick(component.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                      activeSection === component.id
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    <span className="capitalize">{component.id.replace("-", " ")}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </CollapsibleContent>
         </Collapsible>
 
         {/* Platform & Infrastructure */}
@@ -211,80 +215,95 @@ export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarP
           open={expandedGroups["platform-infrastructure"]}
           onOpenChange={() => toggleGroup("platform-infrastructure")}
         >
-          <SidebarGroup className="px-3">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                {expandedGroups["platform-infrastructure"] ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-                <Cloud className="h-4 w-4" />
-                Platform & Infrastructure
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent className="mt-2">
-                <SidebarMenu>
-                  {platformInfra.map((component) => {
-                    const IconComponent = getComponentIcon(component.id)
-                    return (
-                      <SidebarMenuItem key={component.id}>
-                        <SidebarMenuButton
-                          onClick={() => handleSectionClick(component.id)}
-                          isActive={activeSection === component.id}
-                          className="px-3 py-2"
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          <span className="capitalize">{component.id.replace("-", " ")}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
+          <div className="px-3 mb-1">
+            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+              {expandedGroups["platform-infrastructure"] ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+              <Cloud className="h-4 w-4" />
+              Platform & Infrastructure
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent>
+            <div className="ml-4 mt-1 space-y-1">
+              {platformInfra.map((component) => {
+                const IconComponent = getComponentIcon(component.id)
+                return (
+                  <button
+                    key={component.id}
+                    onClick={() => handleSectionClick(component.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                      activeSection === component.id
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    <span className="capitalize">{component.id.replace("-", " ")}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </CollapsibleContent>
         </Collapsible>
 
         {/* External & Client */}
         <Collapsible open={expandedGroups["external-client"]} onOpenChange={() => toggleGroup("external-client")}>
-          <SidebarGroup className="px-3">
-            <SidebarGroupLabel asChild>
-              <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                {expandedGroups["external-client"] ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-                <Globe className="h-4 w-4" />
-                External & Client
-              </CollapsibleTrigger>
-            </SidebarGroupLabel>
-            <CollapsibleContent>
-              <SidebarGroupContent className="mt-2">
-                <SidebarMenu>
-                  {externalClient.map((component) => {
-                    const IconComponent = getComponentIcon(component.id)
-                    return (
-                      <SidebarMenuItem key={component.id}>
-                        <SidebarMenuButton
-                          onClick={() => handleSectionClick(component.id)}
-                          isActive={activeSection === component.id}
-                          className="px-3 py-2"
-                        >
-                          <IconComponent className="h-4 w-4" />
-                          <span className="capitalize">{component.id.replace("-", " ")}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsibleContent>
-          </SidebarGroup>
+          <div className="px-3 mb-1">
+            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+              {expandedGroups["external-client"] ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+              <Globe className="h-4 w-4" />
+              External & Client
+            </CollapsibleTrigger>
+          </div>
+          <CollapsibleContent>
+            <div className="ml-4 mt-1 space-y-1">
+              {externalClient.map((component) => {
+                const IconComponent = getComponentIcon(component.id)
+                return (
+                  <button
+                    key={component.id}
+                    onClick={() => handleSectionClick(component.id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                      activeSection === component.id
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    <span className="capitalize">{component.id.replace("-", " ")}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </CollapsibleContent>
         </Collapsible>
-      </SidebarContent>
-    </Sidebar>
+
+        {/* Developer Notes */}
+        <div className="px-3 mt-4">
+          <div>
+            <div className="space-y-1">
+              <button
+                onClick={() => handleSectionClick("dev-notes")}
+                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                  activeSection === "dev-notes"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                }`}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Developer Notes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
