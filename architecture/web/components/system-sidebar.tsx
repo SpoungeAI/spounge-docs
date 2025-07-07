@@ -12,17 +12,19 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { Workflow, Shield, Database, Cpu, Globe, FileText, Cloud, ChevronRight, ChevronDown } from "lucide-react"
+import { Workflow, Shield, Database, Cpu, Globe, FileText, Cloud, ChevronRight, ChevronDown, History } from "lucide-react"
 import { systemData } from "@/lib/system-data"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface SystemSidebarProps {
   activeSection: string
   onSectionChange: (section: string) => void
+  isCollapsed?: boolean
 }
 
-export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarProps) {
+export function SystemSidebar({ activeSection, onSectionChange, isCollapsed = false }: SystemSidebarProps) {
   const isMobile = useIsMobile()
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     "core-services": true,
@@ -77,229 +79,314 @@ export function SystemSidebar({ activeSection, onSectionChange }: SystemSidebarP
   }
 
   const sidebarWidth = isMobile ? 'w-full' : 'w-64'
+  
+  // Conditionally render elements based on collapsed state
+  const renderSectionButton = (id: string, icon: any, label: string) => {
+    const Icon = icon
+    if (isCollapsed && !isMobile) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => handleSectionClick(id)}
+              className={`w-full flex justify-center px-2 py-2 rounded-md ${
+                activeSection === id
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+              }`}
+            >
+              <Icon className="h-5 w-5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right">{label}</TooltipContent>
+        </Tooltip>
+      )
+    }
+
+    return (
+      <button
+        onClick={() => handleSectionClick(id)}
+        className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+          activeSection === id
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
+        <span>{label}</span>
+      </button>
+    )
+  }
+
+  // Render hierarchical tooltip for collapsed groups
+  const renderCollapsedGroupTooltip = (groupKey: string, groupLabel: string, groupIcon: any, components: any[]) => {
+    const GroupIcon = groupIcon
+    
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            className={`w-full flex justify-center px-2 py-2 rounded-md hover:bg-sidebar-hover hover:text-sidebar-hover-foreground`}
+          >
+            <GroupIcon className="h-5 w-5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="p-3 max-w-xs">
+          <div className="space-y-2">
+            <div className="font-medium text-sm border-b pb-2">{groupLabel}</div>
+            <div className="space-y-1">
+              {components.map((component) => {
+                const IconComponent = getComponentIcon(component.id)
+                return (
+                  <button
+                    key={component.id}
+                    onClick={() => handleSectionClick(component.id)}
+                    className={`w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md ${
+                      activeSection === component.id
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                    <span className="capitalize">{component.id.replace("-", " ")}</span>
+                  </button>
+                )
+              })}
+              {/* Special handling for polykey-service sub-items */}
+              {groupKey === "core-services" && (
+                <div className="ml-4 space-y-1 border-l pl-2">
+                  {polykeyTools.map((tool) => {
+                    const ToolIcon = getComponentIcon(tool.id)
+                    return (
+                      <button
+                        key={tool.id}
+                        onClick={() => handleSectionClick(tool.id)}
+                        className={`w-full flex items-center gap-2 px-2 py-1 text-xs rounded-md ${
+                          activeSection === tool.id
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                        }`}
+                      >
+                        <ToolIcon className="h-3 w-3" />
+                        <span className="capitalize">{tool.id.replace("-", " ")}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
 
   return (
-    <div className={`${sidebarWidth} h-full bg-sidebar`}>
+    <div className={`${isCollapsed && !isMobile ? 'w-12' : sidebarWidth} h-full bg-sidebar overflow-hidden`}>
       <div className="overflow-y-auto py-4 h-full">
         {/* Implementation Roadmap */}
-        <div className="px-3 mb-3">
+        <div className={`${isCollapsed && !isMobile ? 'px-1' : 'px-3'} mb-3`}>
           <div>
             <div className="space-y-1">
-              <button
-                onClick={() => handleSectionClick("roadmap")}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                  activeSection === "roadmap"
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                }`}
-              >
-                <FileText className="h-4 w-4" />
-                <span>Implementation Roadmap</span>
-              </button>
+              {renderSectionButton("roadmap", FileText, "Implementation Roadmap")}
             </div>
           </div>
         </div>
 
         {/* Architecture Diagrams */}
-        <div className="px-3 mb-3">
+        <div className={`${isCollapsed && !isMobile ? 'px-1' : 'px-3'} mb-3`}>
           <div>
             <div className="space-y-1">
-              <button
-                onClick={() => handleSectionClick("architecture-diagrams")}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                  activeSection === "architecture-diagrams"
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                }`}
-              >
-                <Workflow className="h-4 w-4" />
-                <span>Architecture Diagrams</span>
-              </button>
+              {renderSectionButton("architecture-diagrams", Workflow, "Architecture Diagrams")}
             </div>
           </div>
         </div>
 
-        {/* Core Services */}
-        <Collapsible open={expandedGroups["core-services"]} onOpenChange={() => toggleGroup("core-services")}>
-          <div className="px-3 mb-1">
-            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
-              {expandedGroups["core-services"] ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-              <Workflow className="h-4 w-4" />
-              Core Services
-            </CollapsibleTrigger>
+        {/* Collapsed view - show group icons with hierarchical tooltips */}
+        {isCollapsed && !isMobile && (
+          <div className="px-1 space-y-2">
+            {renderCollapsedGroupTooltip("core-services", "Core Services", Workflow, coreServices)}
+            {renderCollapsedGroupTooltip("platform-infrastructure", "Platform & Infrastructure", Cloud, platformInfra)}
+            {renderCollapsedGroupTooltip("external-client", "External & Client", Globe, externalClient)}
           </div>
-          <CollapsibleContent>
-            <div className="ml-4 mt-1 space-y-1">
-              {coreServices.map((component) => {
-                const IconComponent = getComponentIcon(component.id)
+        )}
 
-                if (component.id === "polykey-service") {
-                  return (
-                    <Collapsible
-                      key={component.id}
-                      open={expandedGroups["polykey-tools"]}
-                      onOpenChange={() => toggleGroup("polykey-tools")}
-                    >
-                      <div>
-                        <CollapsibleTrigger asChild>
-                          <button
-                            onClick={() => handleSectionClick(component.id)}
-                            className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md ${
-                              activeSection === component.id
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <IconComponent className="h-4 w-4" />
-                              <span className="capitalize">{component.id.replace("-", " ")}</span>
-                            </div>
-                            {expandedGroups["polykey-tools"] ? (
-                              <ChevronDown className="h-3 w-3" />
-                            ) : (
-                              <ChevronRight className="h-3 w-3" />
-                            )}
-                          </button>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="ml-4 mt-1 space-y-1">
-                            {polykeyTools.map((tool) => {
-                              const ToolIcon = getComponentIcon(tool.id)
-                              return (
-                                <button
-                                  key={tool.id}
-                                  onClick={() => handleSectionClick(tool.id)}
-                                  className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-md ${
-                                    activeSection === tool.id
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                                  }`}
-                                >
-                                  <ToolIcon className="h-4 w-4" />
-                                  <span className="capitalize">{tool.id.replace("-", " ")}</span>
-                                </button>
-                              )
-                            })}
+        {/* Expanded view - show full structure */}
+        {(!isCollapsed || isMobile) && (
+          <>
+            {/* Core Services */}
+            <Collapsible open={expandedGroups["core-services"]} onOpenChange={() => toggleGroup("core-services")}>
+              <div className="px-3 mb-1">
+                <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+                  {expandedGroups["core-services"] ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  <Workflow className="h-4 w-4" />
+                  Core Services
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent>
+                <div className="ml-4 mt-1 space-y-1">
+                  {coreServices.map((component) => {
+                    const IconComponent = getComponentIcon(component.id)
+
+                    if (component.id === "polykey-service") {
+                      return (
+                        <Collapsible
+                          key={component.id}
+                          open={expandedGroups["polykey-tools"]}
+                          onOpenChange={() => toggleGroup("polykey-tools")}
+                        >
+                          <div>
+                            <CollapsibleTrigger asChild>
+                              <button
+                                onClick={() => handleSectionClick(component.id)}
+                                className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md ${
+                                  activeSection === component.id
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <IconComponent className="h-4 w-4" />
+                                  <span className="capitalize">{component.id.replace("-", " ")}</span>
+                                </div>
+                                {expandedGroups["polykey-tools"] ? (
+                                  <ChevronDown className="h-3 w-3" />
+                                ) : (
+                                  <ChevronRight className="h-3 w-3" />
+                                )}
+                              </button>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <div className="ml-4 mt-1 space-y-1">
+                                {polykeyTools.map((tool) => {
+                                  const ToolIcon = getComponentIcon(tool.id)
+                                  return (
+                                    <button
+                                      key={tool.id}
+                                      onClick={() => handleSectionClick(tool.id)}
+                                      className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm rounded-md ${
+                                        activeSection === tool.id
+                                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                          : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                                      }`}
+                                    >
+                                      <ToolIcon className="h-4 w-4" />
+                                      <span className="capitalize">{tool.id.replace("-", " ")}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </CollapsibleContent>
                           </div>
-                        </CollapsibleContent>
-                      </div>
-                    </Collapsible>
-                  )
-                }
+                        </Collapsible>
+                      )
+                    }
 
-                return (
-                  <button
-                    key={component.id}
-                    onClick={() => handleSectionClick(component.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                      activeSection === component.id
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                    }`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    <span className="capitalize">{component.id.replace("-", " ")}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+                    return (
+                      <button
+                        key={component.id}
+                        onClick={() => handleSectionClick(component.id)}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                          activeSection === component.id
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                        }`}
+                      >
+                        <IconComponent className="h-4 w-4" />
+                        <span className="capitalize">{component.id.replace("-", " ")}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-        {/* Platform & Infrastructure */}
-        <Collapsible
-          open={expandedGroups["platform-infrastructure"]}
-          onOpenChange={() => toggleGroup("platform-infrastructure")}
-        >
-          <div className="px-3 mb-1">
-            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
-              {expandedGroups["platform-infrastructure"] ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-              <Cloud className="h-4 w-4" />
-              Platform & Infrastructure
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent>
-            <div className="ml-4 mt-1 space-y-1">
-              {platformInfra.map((component) => {
-                const IconComponent = getComponentIcon(component.id)
-                return (
-                  <button
-                    key={component.id}
-                    onClick={() => handleSectionClick(component.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                      activeSection === component.id
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                    }`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    <span className="capitalize">{component.id.replace("-", " ")}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+            {/* Platform & Infrastructure */}
+            <Collapsible
+              open={expandedGroups["platform-infrastructure"]}
+              onOpenChange={() => toggleGroup("platform-infrastructure")}
+            >
+              <div className="px-3 mb-1">
+                <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+                  {expandedGroups["platform-infrastructure"] ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  <Cloud className="h-4 w-4" />
+                  Platform & Infrastructure
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent>
+                <div className="ml-4 mt-1 space-y-1">
+                  {platformInfra.map((component) => {
+                    const IconComponent = getComponentIcon(component.id)
+                    return (
+                      <button
+                        key={component.id}
+                        onClick={() => handleSectionClick(component.id)}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                          activeSection === component.id
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                        }`}
+                      >
+                        <IconComponent className="h-4 w-4" />
+                        <span className="capitalize">{component.id.replace("-", " ")}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-        {/* External & Client */}
-        <Collapsible open={expandedGroups["external-client"]} onOpenChange={() => toggleGroup("external-client")}>
-          <div className="px-3 mb-1">
-            <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
-              {expandedGroups["external-client"] ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-              <Globe className="h-4 w-4" />
-              External & Client
-            </CollapsibleTrigger>
-          </div>
-          <CollapsibleContent>
-            <div className="ml-4 mt-1 space-y-1">
-              {externalClient.map((component) => {
-                const IconComponent = getComponentIcon(component.id)
-                return (
-                  <button
-                    key={component.id}
-                    onClick={() => handleSectionClick(component.id)}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                      activeSection === component.id
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                    }`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    <span className="capitalize">{component.id.replace("-", " ")}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+            {/* External & Client */}
+            <Collapsible open={expandedGroups["external-client"]} onOpenChange={() => toggleGroup("external-client")}>
+              <div className="px-3 mb-1">
+                <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium hover:bg-sidebar-hover hover:text-sidebar-hover-foreground">
+                  {expandedGroups["external-client"] ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  <Globe className="h-4 w-4" />
+                  External & Client
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent>
+                <div className="ml-4 mt-1 space-y-1">
+                  {externalClient.map((component) => {
+                    const IconComponent = getComponentIcon(component.id)
+                    return (
+                      <button
+                        key={component.id}
+                        onClick={() => handleSectionClick(component.id)}
+                        className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
+                          activeSection === component.id
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
+                        }`}
+                      >
+                        <IconComponent className="h-4 w-4" />
+                        <span className="capitalize">{component.id.replace("-", " ")}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </>
+        )}
 
-        {/* Developer Notes */}
-        <div className="px-3 mt-4">
+        {/* Changelog */}
+        <div className={`${isCollapsed && !isMobile ? 'px-1' : 'px-3'} mb-3`}>
           <div>
             <div className="space-y-1">
-              <button
-                onClick={() => handleSectionClick("dev-notes")}
-                className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md ${
-                  activeSection === "dev-notes"
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "hover:bg-sidebar-hover hover:text-sidebar-hover-foreground"
-                }`}
-              >
-                <FileText className="h-4 w-4" />
-                <span>Developer Notes</span>
-              </button>
+              {renderSectionButton("changelog", History, "Changelog")}
             </div>
           </div>
         </div>

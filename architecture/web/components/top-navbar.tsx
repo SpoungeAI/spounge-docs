@@ -14,12 +14,11 @@ interface TopNavbarProps {
 export function TopNavbar({ searchQuery, onSearchChange, onSectionChange, children }: TopNavbarProps) {
   return (
     <header className="fixed top-0 z-50 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-full items-center justify-between px-2 lg:px-4">
+      <div className="flex h-full items-center justify-between px-2">
         {/* Left side - Logo, title, and GitHub link */}
         <div className="flex items-center gap-1 md:gap-4">
           {children}
           <div className="flex items-center gap-1 md:gap-3">
-            <SidebarTrigger className="hidden md:flex" />
             <div className="flex items-center gap-2 md:gap-3">
               <div className="h-8 w-8 md:h-9 md:w-9 rounded-md overflow-hidden">
                 <img

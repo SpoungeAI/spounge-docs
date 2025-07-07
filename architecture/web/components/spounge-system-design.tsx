@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { SystemSidebar } from "@/components/system-sidebar"
@@ -7,8 +7,9 @@ import { TopNavbar } from "@/components/top-navbar"
 import { ThemeProvider } from "@/components/theme-provider"
 import { getRouteById } from "@/lib/routes"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { MenuIcon, X } from "lucide-react"
+import { MenuIcon, PanelLeft, PanelLeftClose, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Changelog } from "@/components/changelog"
 
 interface SpoungeSystemDesignProps {
   initialSection?: string;
@@ -21,11 +22,17 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
   const [activeSection, setActiveSection] = useState(initialSection)
   const [searchQuery, setSearchQuery] = useState("")
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const mainContentRef = useRef<HTMLDivElement>(null)
   
   // Extract section from URL path when route changes
   useEffect(() => {
     const pathSection = location.pathname.substring(1) || initialSection
     setActiveSection(pathSection)
+    // Ensure content area is scrolled to top when route changes
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTop = 0
+    }
   }, [location.pathname, initialSection])
 
   // Handle section changes with router navigation
@@ -34,6 +41,10 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
     if (route) {
       navigate(route.path)
       setActiveSection(sectionId)
+      // Manually scroll the main content area to top
+      if (mainContentRef.current) {
+        mainContentRef.current.scrollTop = 0
+      }
       // Close sidebar on mobile after navigation
       if (isMobile) {
         setSidebarOpen(false)
@@ -42,8 +53,28 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
   }
 
   const toggleSidebar = () => {
-    setSidebarOpen(prev => !prev)
+    // For mobile, toggle open/closed
+    if (isMobile) {
+      setSidebarOpen(prev => !prev)
+    } 
+    // For desktop, toggle collapsed/expanded
+    else {
+      setSidebarCollapsed(prev => !prev)
+    }
   }
+
+  const renderMainContent = () => {
+    if (activeSection === "changelog") {
+      return <Changelog />;
+    }
+    
+    return (
+      <MainContent 
+        activeSection={activeSection} 
+        onSectionChange={handleSectionChange}
+      />
+    );
+  };
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
@@ -58,11 +89,15 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="flex"
               onClick={toggleSidebar}
-              aria-label="Toggle Menu"
+              aria-label={isMobile ? "Toggle Menu" : (sidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar")}
             >
-              <MenuIcon className="h-5 w-5" />
+              {isMobile ? (
+                <MenuIcon className="h-5 w-5" />
+              ) : (
+                sidebarCollapsed ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />
+              )}
             </Button>
           </TopNavbar>
 
@@ -98,8 +133,9 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
               `}
             >
               <aside className={`
-                ${isMobile ? 'w-[280px]' : 'w-64'} 
+                ${isMobile ? 'w-[280px]' : sidebarCollapsed ? 'w-12' : 'w-64'} 
                 h-[calc(100vh-3.5rem)] bg-sidebar border-r
+                transition-width duration-300
               `}
               style={{ 
                 top: isMobile ? '3.5rem' : '0'
@@ -108,16 +144,14 @@ export function SpoungeSystemDesign({ initialSection = "roadmap" }: SpoungeSyste
                 <SystemSidebar 
                   activeSection={activeSection} 
                   onSectionChange={handleSectionChange}
+                  isCollapsed={sidebarCollapsed}
                 />
               </aside>
             </div>
 
             {/* Main content */}
-            <main className="flex-1 overflow-auto">
-              <MainContent 
-                activeSection={activeSection} 
-                onSectionChange={handleSectionChange}
-              />
+            <main ref={mainContentRef} className="flex-1 overflow-auto">
+              {renderMainContent()}
             </main>
           </div>
         </SidebarProvider>

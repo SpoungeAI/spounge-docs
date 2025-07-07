@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "start": "vite preview --port 3000",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "gen:devnotes": "ts-node scripts/generateDevNotesMap.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

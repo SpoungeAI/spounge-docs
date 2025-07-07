@@ -10,6 +10,11 @@ export const routes = [
     path: "/architecture-diagrams",
     label: "Architecture Diagrams"
   },
+  {
+    id: "changelog",
+    path: "/changelog",
+    label: "Changelog"
+  },
   // Core services
   {
     id: "api-gateway",
